@@ -123,6 +123,9 @@
             {% if manufacturer %}
               <li>{{ text_manufacturer }} <a href="{{ manufacturers }}">{{ manufacturer }}</a></li>
             {% endif %}
+              {% if location %}
+                  <li>{{ text_location }} {{ location}}</li>
+              {% endif %}
             <li>{{ text_model }} {{ model }}</li>
             {% if reward %}
               <li>{{ text_reward }} {{ reward }}</li>
