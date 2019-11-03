@@ -1,6 +1,6 @@
 <?php
 class ControllerStartupSeoUrl extends Controller {
-	private $regex = array();
+	private $regex   = array();
 	private $keyword = array();
 
 	public function index() {
@@ -16,7 +16,7 @@ class ControllerStartupSeoUrl extends Controller {
 		$results = $this->model_design_seo_regex->getSeoRegexes();
 
 		foreach ($results as $result) {
-			$this->regex[] = $result['regex'];
+			//$this->regex[$result['key']][] = '/' . $result['regex'] . '/';
 		}
 
 		// Decode URL
@@ -52,73 +52,118 @@ class ControllerStartupSeoUrl extends Controller {
 	}
 
 	public function rewrite($link) {
+		/*
 		$url = '';
 
 		$url_info = parse_url(str_replace('&amp;', '&', $link));
 
-		$data = array();
+		if ($url_info['scheme']) {
+			$url .= $url_info['scheme'];
+		}
 
-		parse_str($url_info['query'], $data);
+		$url .= '://';
 
-		foreach ($this->regex as $regex) {
-			$matches = array();
+		if ($url_info['host']) {
+			$url .= $url_info['host'];
+		}
 
-			$regex = preg_quote($regex, '/');
+		if (isset($url_info['port'])) {
+			$url .= ':' . $url_info['port'];
+		}
 
-			if (preg_match('/' . $regex . '/', $url_info['query'], $matches)) {
-				array_shift($matches);
+		// Start replacing the URL query
+		$url_data = array();
 
-				foreach ($matches as $match) {
+		$path = '';
 
+		parse_str($url_info['query'], $url_data);
 
+		foreach ($url_data as $key => $value) {
+			$url_key = $key . '=' . $value;
 
-					if (!$this->keyword[$match]) {
-						$results = $this->model_design_seo_url->getSeoUrlsByQuery($match);
+			if (isset($this->regex[$key])) {
+				foreach ($this->regex[$key] as $regex) {
+					echo $regex . "\n";
 
-						if ($results) {
-							foreach ($results as $result) {
-								if (!empty($result['keyword'])) {
-									$url .= '/' . $result['keyword'];
-								}
+					$matches = array();
+
+					if (preg_match($regex, $value, $matches)) {
+						print_r($matches);
+
+						array_shift($matches);
+
+						foreach ($matches as $match) {
+							print_r($match);
+
+							$path .= '/' . $match[0];
+
+							if (!isset($this->keyword[$url_key])) {
+								$this->keyword[$url_key] = $this->model_design_seo_url->getKeywordByQuery($url_key);
 							}
 
-							parse_str($match, $remove);
 
-							// Remove all the matched url elements
-							foreach (array_keys($remove) as $key) {
-								if (isset($data[$key])) {
-									unset($data[$key]);
-								}
+							if ($this->keyword[$url_key]) {
+								$path .= '/' . $this->keyword[$url_key];
+
+								unset($url_data[$key]);
 							}
+
+
 						}
+
+
 					}
+				}
+			}
 
 
+			echo $path . "\n";
+		}
 
+		$query = '';
 
+		//foreach ($data as $key => $value) {
+		//	$query .= '&' . rawurlencode((string)$key) . '=' . rawurlencode(is_array($value) ? http_build_query($value) : (string)$value);
+		//}
 
+		//if ($query) {
+		//	$query = '?' . str_replace('&', '&amp;', trim(str_replace('%2F', '/', $query), '&'));
+		//}
 
+		/*
+		foreach ($matches as $match) {
+			echo $match . "\n";
 
+			if (!isset($this->keyword[$match])) {
+				$this->keyword[$match] = $this->model_design_seo_url->getKeywordByQuery($match);
+
+				$url .= '/' . $this->keyword[$match];
+
+			}
+
+			if ($this->keyword[$match]) {
+
+			}
+
+			parse_str($match, $remove);
+
+			// Remove all the matched url elements
+			foreach (array_keys($remove) as $key) {
+				//echo $key . "\n";
+
+				if (isset($data[$key])) {
+					unset($data[$key]);
 				}
 			}
 		}
 
-		if ($url) {
-			$query = '';
 
-			if ($data) {
-				foreach ($data as $key => $value) {
-					$query .= '&' . rawurlencode((string)$key) . '=' . rawurlencode(is_array($value) ? http_build_query($value) : (string)$value);
-				}
-
-				if ($query) {
-					$query = '?' . str_replace('&', '&amp;', trim(str_replace('%2F', '/', $query), '&'));
-				}
-			}
-
-			return $url_info['scheme'] . '://' . $url_info['host'] . (isset($url_info['port']) ? ':' . $url_info['port'] : '') . str_replace('/index.php', '', $url_info['path']) . $url . $query;
-		} else {
-			return $link;
+		if ($url_info['path']) {
+			$url .= str_replace('/index.php', '', $url_info['path']);
 		}
+*/
+
+		return $link;
 	}
+
 }
