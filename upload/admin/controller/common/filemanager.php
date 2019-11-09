@@ -29,7 +29,8 @@ class ControllerCommonFileManager extends Controller {
 
 		if ($directories) {
 			// Split the array based on current page number and max number of items per page of 10
-			$images = array_splice($directories, ($page - 1) * 16, 16);
+			// $images = array_splice($directories, ($page - 1) * 16, 16);
+            $images = array_slice($directories, max(0, ($page - 1) * 16 - count($directories)), 16 - count($data['directories']));
 
 			foreach ($images as $image) {
 				if (substr(str_replace('\\', '/', realpath($image)), 0, utf8_strlen(DIR_IMAGE . 'catalog')) == DIR_IMAGE . 'catalog') {
@@ -66,8 +67,11 @@ class ControllerCommonFileManager extends Controller {
 		$files = glob($directory . $filter_name . '*.{jpg,jpeg,png,gif,JPG,JPEG,PNG,GIF}', GLOB_BRACE);
 
 		if ($files) {
-			// Split the array based on current page number and max number of items per page of 10
-			$images = array_splice($files, ($page - 1) * 16, 16 - count($data['images']));
+			// Split the array based on current page number and ma ix number oftems per page of 10
+			// Fix Image manager: pagination issues, no page tabs appear to reach the missing image files.
+            // https://github.com/opencart/opencart/issues/7027
+            // $images = array_splice($files, ($page - 1) * 16, 16 - count($data['images']));
+            $images = array_slice($files, max(0, ($page - 1) * 16 - count($directories)), 16 - count($data['directories']));
 
 			foreach ($images as $image) {
 				if (substr(str_replace('\\', '/', realpath($image)), 0, utf8_strlen(DIR_IMAGE . 'catalog')) == DIR_IMAGE . 'catalog') {
